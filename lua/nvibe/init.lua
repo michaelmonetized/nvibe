@@ -149,13 +149,16 @@ function M.create_terminal_split()
   vim.cmd("stopinsert")
   
   -- Create bottom panel with 3-column layout
-  -- Switch to bottom panel
-  vim.cmd("wincmd j")
+  -- First create the bottom split
+  vim.cmd("belowright split")
   
-  -- Split 66/33 (lazygit gets more space)
+  -- Set the height to 20% of screen
+  vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
+  
+  -- Now we're in the bottom panel, split it vertically 66/33
   vim.cmd("vertical resize 66%")
   
-  -- Create lazygit terminal
+  -- Create lazygit terminal in left side of bottom panel
   local success3, err3 = pcall(function()
     nvchad_term.new {
       pos = "sp",
@@ -174,23 +177,10 @@ function M.create_terminal_split()
     )
   end
   
-  -- Switch back to main window
-  vim.cmd("wincmd k")
+  -- Switch to right side of bottom panel
+  vim.cmd("wincmd l")
   
-  -- Kill the 1 line empty buffer
-  vim.cmd("wincmd j")
-  vim.cmd("close")
-  
-  -- Switch back to main window
-  vim.cmd("wincmd 1")
-  
-  -- Switch to bottom panel again
-  vim.cmd("wincmd j")
-  
-  -- Split 50/50 for shell terminal
-  vim.cmd("vertical resize 50%")
-  
-  -- Create shell terminal
+  -- Create shell terminal in right side of bottom panel
   local success4, err4 = pcall(function()
     nvchad_term.new {
       pos = "sp",
@@ -209,15 +199,8 @@ function M.create_terminal_split()
     )
   end
   
-  -- Switch back to main window
+  -- Switch back to main window (top area)
   vim.cmd("wincmd k")
-  
-  -- Kill the 1 line empty buffer
-  vim.cmd("wincmd j")
-  vim.cmd("close")
-  
-  -- Switch back to main window
-  vim.cmd("wincmd 1")
 end
 
 ---Creates the bottom panel with a shell terminal
