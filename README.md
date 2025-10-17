@@ -175,11 +175,12 @@ require('nvibe').setup({
 
 ## 🏆 Why Developers Love Nvibe
 
-> *"Finally, a plugin that gets it. No more context switching, no more losing focus. Just pure coding flow with AI assistance right where I need it."* - **@developer**
-
-> *"This is exactly what I've been looking for. The AI assistants are always there, always ready, and I never lose my place in the code."* - **@coder**
-
-> *"Nvibe transformed my Neovim setup. It's like having a pair programming partner that never gets tired."* - **@engineer**
+- **🚀 Zero Context Switching** - AI assistants are always visible and ready
+- **⚡ Instant Access** - No need to remember commands or open separate windows
+- **🎯 Focused Workflow** - Keep your code in view while getting AI help
+- **🔧 Seamless Integration** - Works perfectly with your existing Neovim setup
+- **🤖 Always Available** - AI assistance that never sleeps or takes breaks
+- **📱 Modern Experience** - Clean, intuitive interface that just works
 
 ---
 
