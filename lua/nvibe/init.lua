@@ -147,9 +147,6 @@ function M.create_terminal_split()
 
   -- Exit insert mode if we're in it
   vim.cmd("stopinsert")
-  
-  -- Now create bottom panel from main editor area
-  M.create_bottom_panel()
 end
 
 ---Creates the bottom panel with a shell terminal
@@ -245,6 +242,8 @@ function M.setup(opts)
       -- Only run if we're not in a terminal buffer already
       if vim.bo.buftype ~= "terminal" then
         M.create_terminal_split()
+        -- Create bottom panel after left panel is done
+        M.create_bottom_panel()
       end
     end,
   })
