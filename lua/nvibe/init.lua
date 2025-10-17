@@ -32,20 +32,30 @@ function M.create_terminal_split()
   -- Set the width
   vim.cmd("vertical resize " .. width)
   
-  -- Create horizontal split
-  vim.cmd("split")
+  -- Create cursor-agent terminal in top-left using NvChad method
+  require("nvchad.term").new {
+    pos = "sp",
+    cmd = config.cursor_agent_cmd,
+    size = 0.5  -- 50% of the left panel
+  }
   
-  -- Run cursor-agent in the top half
-  vim.cmd("terminal " .. config.cursor_agent_cmd)
+  -- Create coderabbit terminal in bottom-left using NvChad method
+  require("nvchad.term").new {
+    pos = "sp", 
+    cmd = config.coderabbit_cmd,
+    size = 0.5  -- 50% of the left panel
+  }
   
-  -- Switch to the bottom half
-  vim.cmd("wincmd j")
+  -- Close the empty buffer above cursor-agent (go up twice to get to the empty editor)
+  vim.cmd("wincmd k")
+  vim.cmd("wincmd k")
+  vim.cmd("close")
   
-  -- Run coderabbit in the bottom half
-  vim.cmd("terminal " .. config.coderabbit_cmd)
-  
-  -- Switch back to the main window
+  -- Switch back to main window (right side)
   vim.cmd("wincmd l")
+  
+  -- Exit insert mode if we're in it
+  vim.cmd("stopinsert")
 end
 
 -- Function to setup the plugin
