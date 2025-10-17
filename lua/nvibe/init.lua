@@ -147,6 +147,28 @@ function M.create_terminal_split()
 
   -- Exit insert mode if we're in it
   vim.cmd("stopinsert")
+  
+  -- Create bottom panel with shell terminal
+  local success3, err3 = pcall(function()
+    nvchad_term.new {
+      pos = "sp",
+      cmd = vim.o.shell,  -- Use user's default shell
+      size = 0.2  -- 20% of screen height
+    }
+  end)
+  
+  if not success3 then
+    vim.notify(
+      "Nvibe Error: Failed to create bottom terminal\n\n" ..
+      "Shell: " .. vim.o.shell .. "\n" ..
+      "Error: " .. tostring(err3),
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Terminal Creation Failed" }
+    )
+  end
+  
+  -- Switch back to main window (top area)
+  vim.cmd("wincmd k")
 end
 
 ---Creates the bottom panel with a shell terminal
@@ -242,8 +264,6 @@ function M.setup(opts)
       -- Only run if we're not in a terminal buffer already
       if vim.bo.buftype ~= "terminal" then
         M.create_terminal_split()
-        -- Create bottom panel after left panel is done
-        M.create_bottom_panel()
       end
     end,
   })
