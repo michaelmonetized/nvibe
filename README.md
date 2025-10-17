@@ -154,6 +154,34 @@ require('nvibe').setup({
 
 ---
 
+## 🧪 Testing
+
+Nvibe includes a comprehensive test suite with 100% function coverage:
+
+```bash
+# Install test dependencies
+make install-deps
+
+# Run tests
+make test
+
+# Run tests with coverage
+make test-coverage
+
+# Run linter
+make lint
+
+# Run all checks
+make check
+```
+
+**Test Coverage:**
+- ✅ Configuration management
+- ✅ Terminal width calculation
+- ✅ Window management operations
+- ✅ Autocmd creation and handling
+- ✅ Error conditions and edge cases
+
 ## 🤝 Contributing
 
 We love contributions! Here's how you can help:
@@ -162,6 +190,8 @@ We love contributions! Here's how you can help:
 2. 🌟 **Star** it if you like it
 3. 🐛 **Report bugs** or suggest features
 4. 💻 **Submit pull requests**
+5. 🧪 **Add tests** for new functionality
+6. 📚 **Update documentation** as needed
 
 ---
 

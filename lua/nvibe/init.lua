@@ -1,16 +1,33 @@
+---@meta
+
+---@class NvibeConfig
+---@field width_percent number Percentage of screen width for terminal panel (default: 30)
+---@field cursor_agent_cmd string Command to run cursor-agent (default: "cursor-agent")
+---@field coderabbit_cmd string Command to run coderabbit (default: "coderabbit")
+
+---@class NvibeModule
+---@field create_terminal_split fun(): nil Creates the terminal split layout
+---@field setup fun(opts?: NvibeConfig): nil Initializes the plugin with optional configuration
+
 -- Nvibe Plugin for Neovim
 -- Opens a terminal pane on the left with cursor-agent and coderabbit
+-- 
+-- This plugin automatically creates a split terminal layout on Neovim startup,
+-- with cursor-agent running in the top terminal and coderabbit in the bottom terminal.
+-- The terminal panel takes up 30% of the screen width by default.
 
 local M = {}
 
--- Configuration
+---Default configuration for the Nvibe plugin
+---@type NvibeConfig
 local config = {
   width_percent = 30,
   cursor_agent_cmd = "cursor-agent",
   coderabbit_cmd = "coderabbit",
 }
 
--- Function to get terminal width based on $COLS
+---Calculates the terminal panel width based on environment or current window
+---@return number The calculated width in columns
 local function get_terminal_width()
   local cols = os.getenv("COLS")
   if cols then
@@ -21,7 +38,17 @@ local function get_terminal_width()
   end
 end
 
--- Function to create the terminal split
+---Creates the terminal split layout with cursor-agent and coderabbit
+---
+---This function:
+---1. Creates a vertical split to the left of the current window
+---2. Resizes the left panel to the calculated width
+---3. Creates cursor-agent terminal in the top half
+---4. Creates coderabbit terminal in the bottom half
+---5. Closes any empty editor buffers
+---6. Returns focus to the main editor window
+---
+---@return nil
 function M.create_terminal_split()
   -- Get the calculated width
   local width = get_terminal_width()
@@ -58,7 +85,15 @@ function M.create_terminal_split()
   vim.cmd("stopinsert")
 end
 
--- Function to setup the plugin
+---Initializes the Nvibe plugin with optional configuration
+---
+---This function sets up the plugin by:
+---1. Merging user-provided options with default configuration
+---2. Creating an autocmd that runs on VimEnter
+---3. Ensuring the terminal split only runs when not already in a terminal buffer
+---
+---@param opts NvibeConfig|nil Optional configuration table
+---@return nil
 function M.setup(opts)
   if opts then
     config = vim.tbl_deep_extend("force", config, opts)
