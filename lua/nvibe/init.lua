@@ -50,6 +50,20 @@ end
 ---
 ---@return nil
 function M.create_terminal_split()
+  -- Check if NvChad term module is available
+  local nvchad_term, err = pcall(require, "nvchad.term")
+  if not nvchad_term then
+    vim.notify(
+      "Nvibe Error: nvchad.term module not found!\n\n" ..
+      "Nvibe requires NvChad to function properly.\n" ..
+      "Please install NvChad: https://github.com/NvChad/NvChad\n\n" ..
+      "Error: " .. tostring(err),
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Missing Dependency" }
+    )
+    return
+  end
+
   -- Get the calculated width
   local width = get_terminal_width()
   
@@ -60,18 +74,42 @@ function M.create_terminal_split()
   vim.cmd("vertical resize " .. width)
   
   -- Create cursor-agent terminal in top-left using NvChad method
-  require("nvchad.term").new {
-    pos = "sp",
-    cmd = config.cursor_agent_cmd,
-    size = 0.5  -- 50% of the left panel
-  }
+  local success, err = pcall(function()
+    require("nvchad.term").new {
+      pos = "sp",
+      cmd = config.cursor_agent_cmd,
+      size = 0.5  -- 50% of the left panel
+    }
+  end)
+  
+  if not success then
+    vim.notify(
+      "Nvibe Error: Failed to create cursor-agent terminal\n\n" ..
+      "Command: " .. config.cursor_agent_cmd .. "\n" ..
+      "Error: " .. tostring(err),
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Terminal Creation Failed" }
+    )
+  end
   
   -- Create coderabbit terminal in bottom-left using NvChad method
-  require("nvchad.term").new {
-    pos = "sp", 
-    cmd = config.coderabbit_cmd,
-    size = 0.5  -- 50% of the left panel
-  }
+  local success2, err2 = pcall(function()
+    require("nvchad.term").new {
+      pos = "sp", 
+      cmd = config.coderabbit_cmd,
+      size = 0.5  -- 50% of the left panel
+    }
+  end)
+  
+  if not success2 then
+    vim.notify(
+      "Nvibe Error: Failed to create coderabbit terminal\n\n" ..
+      "Command: " .. config.coderabbit_cmd .. "\n" ..
+      "Error: " .. tostring(err2),
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Terminal Creation Failed" }
+    )
+  end
   
   -- Close the empty buffer above cursor-agent (go up twice to get to the empty editor)
   vim.cmd("wincmd k")
@@ -88,13 +126,28 @@ end
 ---Initializes the Nvibe plugin with optional configuration
 ---
 ---This function sets up the plugin by:
----1. Merging user-provided options with default configuration
----2. Creating an autocmd that runs on VimEnter
----3. Ensuring the terminal split only runs when not already in a terminal buffer
+---1. Checking for required dependencies (NvChad)
+---2. Merging user-provided options with default configuration
+---3. Creating an autocmd that runs on VimEnter
+---4. Ensuring the terminal split only runs when not already in a terminal buffer
 ---
 ---@param opts NvibeConfig|nil Optional configuration table
 ---@return nil
 function M.setup(opts)
+  -- Check for NvChad dependency first
+  local nvchad_term, err = pcall(require, "nvchad.term")
+  if not nvchad_term then
+    vim.notify(
+      "Nvibe Setup Error: nvchad.term module not found!\n\n" ..
+      "Nvibe requires NvChad to function properly.\n" ..
+      "Please install NvChad: https://github.com/NvChad/NvChad\n\n" ..
+      "Error: " .. tostring(err),
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Missing Dependency" }
+    )
+    return
+  end
+
   if opts then
     config = vim.tbl_deep_extend("force", config, opts)
   end

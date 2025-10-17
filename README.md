@@ -8,9 +8,20 @@
 
 **Transform your Neovim into a powerful AI-powered coding environment with integrated terminals and intelligent assistants.**
 
+<div align="center">
+
+## ⚠️ DEPENDENCY WARNING ⚠️
+
+**Nvibe requires [NvChad](https://github.com/NvChad/NvChad) to function!**
+
+Install NvChad first, then install Nvibe.
+
+</div>
+
 [![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Orange?style=for-the-badge&logo=product-hunt)](https://www.producthunt.com)
 [![GitHub Stars](https://img.shields.io/github/stars/michaelmonetized/nvibe?style=for-the-badge&logo=github)](https://github.com/michaelmonetized/nvibe)
 [![Neovim](https://img.shields.io/badge/Neovim-0.7+-57A143?style=for-the-badge&logo=neovim)](https://neovim.io)
+[![NvChad](https://img.shields.io/badge/Requires-NvChad-red?style=for-the-badge&logo=github)](https://github.com/NvChad/NvChad)
 
 </div>
 
@@ -56,7 +67,18 @@ Ever found yourself constantly alt-tabbing between your editor and terminal? Or 
 
 ## 🚀 Quick Start
 
-### Installation
+> **⚠️ IMPORTANT**: Nvibe requires **NvChad** to function! Install NvChad first: https://github.com/NvChad/NvChad
+
+### Step 1: Install NvChad (Required)
+```bash
+# Backup your current config
+mv ~/.config/nvim ~/.config/nvim.backup
+
+# Install NvChad
+git clone https://github.com/NvChad/NvChad ~/.config/nvim
+```
+
+### Step 2: Install Nvibe
 
 ### Option 1: Using Lazy.nvim (Recommended)
 ```lua
@@ -90,6 +112,22 @@ That's it! Just launch Neovim and Nvibe automatically:
 2. 🤖 Launches Cursor Agent in the top terminal
 3. 🐰 Launches CodeRabbit in the bottom terminal
 4. ✨ You're ready to code with AI assistance!
+
+---
+
+## ⚠️ Dependency Warning
+
+**Nvibe requires NvChad to function!** 
+
+If you don't have NvChad installed, you'll see an error like:
+```
+E5113: Error while calling lua chunk: .../nvibe/lua/nvibe/init.lua:36: module 'nvchad.term' not found
+```
+
+**Solutions:**
+1. **Install NvChad** (recommended): https://github.com/NvChad/NvChad
+2. **Install nvchad.term separately** (advanced users)
+3. **Use alternative terminal plugin** (requires code modification)
 
 ---
 
@@ -145,12 +183,36 @@ require('nvibe').setup({
 
 ---
 
-## 🛠️ Requirements
+## ⚠️ Requirements
+
+> **IMPORTANT**: Nvibe requires **NvChad** or the **nvchad.term** module to function properly.
+
+### 🔧 Required Dependencies
 
 - **Neovim 0.7+** - Modern Neovim with Lua support
-- **NvChad** - For the best experience (terminal integration)
+- **NvChad** - **REQUIRED** for terminal integration (`nvchad.term` module)
 - **Cursor Agent** - Your AI coding assistant
 - **CodeRabbit** - Your code review assistant
+
+### 📦 Dependency Options
+
+**Option 1: Full NvChad (Recommended)**
+```lua
+-- Install NvChad first, then Nvibe
+-- NvChad provides the nvchad.term module
+```
+
+**Option 2: Standalone nvchad.term**
+```lua
+-- If you don't want full NvChad, install just the term module
+-- This is more complex and not officially supported
+```
+
+**Option 3: Alternative Terminal Plugin**
+```lua
+-- You can modify Nvibe to use other terminal plugins
+-- See docs/CUSTOMIZATION.md for details
+```
 
 ---
 

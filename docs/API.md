@@ -98,8 +98,23 @@ The plugin automatically creates a `VimEnter` autocmd that:
 
 ## Dependencies
 
+> **⚠️ CRITICAL**: Nvibe requires NvChad to function properly!
+
 - **Neovim 0.7+** - Required for Lua support
-- **NvChad** - Required for terminal integration (`nvchad.term` module)
+- **NvChad** - **REQUIRED** for terminal integration (`nvchad.term` module)
+  - Install: https://github.com/NvChad/NvChad
+  - Alternative: Install `nvchad.term` module separately (advanced)
+
+### Dependency Check
+
+Nvibe automatically checks for the `nvchad.term` module during setup and will show an error if missing:
+
+```
+Nvibe Setup Error: nvchad.term module not found!
+
+Nvibe requires NvChad to function properly.
+Please install NvChad: https://github.com/NvChad/NvChad
+```
 
 ## Error Handling
 
@@ -136,15 +151,48 @@ end, { desc = 'Create Nvibe terminal split' })
 
 ### Common Issues
 
-1. **Terminals not interactive**: Ensure NvChad is properly installed
-2. **Wrong terminal size**: Check `COLS` environment variable or adjust `width_percent`
-3. **Commands not found**: Verify cursor-agent and coderabbit are in PATH
+1. **"module 'nvchad.term' not found"**: 
+   - **Cause**: NvChad is not installed
+   - **Solution**: Install NvChad: `git clone https://github.com/NvChad/NvChad ~/.config/nvim`
+
+2. **"Failed to create terminal"**:
+   - **Cause**: AI assistant commands not found in PATH
+   - **Solution**: Install cursor-agent and coderabbit
+
+3. **Terminals not interactive**: 
+   - **Cause**: NvChad term module not working properly
+   - **Solution**: Reinstall NvChad completely
+
+4. **Wrong terminal size**: 
+   - **Cause**: `COLS` environment variable not set
+   - **Solution**: Set `COLS` or adjust `width_percent` in config
+
+### Error Handling
+
+Nvibe includes comprehensive error handling:
+
+- **Dependency checks** during setup
+- **Graceful failure** with helpful error messages
+- **Command validation** before terminal creation
+- **User-friendly notifications** for all errors
 
 ### Debug Mode
 
 Enable debug logging by setting:
 ```lua
 vim.g.nvibe_debug = true
+```
+
+### Manual Dependency Check
+
+You can manually check if NvChad is available:
+```lua
+local nvchad_term, err = pcall(require, "nvchad.term")
+if nvchad_term then
+  print("✅ NvChad term module is available")
+else
+  print("❌ NvChad term module not found: " .. tostring(err))
+end
 ```
 
 ## Contributing
