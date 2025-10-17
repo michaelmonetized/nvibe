@@ -144,7 +144,13 @@ function M.create_terminal_split()
   
   -- Switch back to main window (right side)
   vim.cmd("wincmd l")
-  
+
+  -- Create bottom panel
+  M.create_bottom_panel()
+
+  -- Switch back to main window (top area)
+  vim.cmd("wincmd k")
+
   -- Exit insert mode if we're in it
   vim.cmd("stopinsert")
 end
@@ -234,11 +240,6 @@ function M.setup(opts)
   if opts then
     config = vim.tbl_deep_extend("force", config, opts)
   end
-  
-  -- Register keybind for bottom panel
-  vim.keymap.set("n", "<leader>]", function()
-    M.create_bottom_panel()
-  end, { desc = "Nvibe: Create bottom panel" })
   
   -- Create autocmd to run on VimEnter
   vim.api.nvim_create_autocmd("VimEnter", {
