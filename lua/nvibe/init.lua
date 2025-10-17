@@ -152,6 +152,9 @@ function M.create_terminal_split()
   -- First create the bottom split
   vim.cmd("belowright split")
   
+  -- Switch to the bottom panel
+  vim.cmd("wincmd j")
+  
   -- Set the height to 20% of screen
   vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
   
