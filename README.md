@@ -112,7 +112,7 @@ require('nvibe').setup({
 <div align="center">
 
 ### Before Nvibe
-```
+```text
 ┌─────────────────┬─────────────────┐
 │                 │                 │
 │   Your Code     │   Terminal      │
@@ -122,7 +122,7 @@ require('nvibe').setup({
 ```
 
 ### After Nvibe
-```
+```text
 ┌─────────┬─────────────────────────┐
 │ Cursor  │                         │
 │ Agent   │     Your Code           │
