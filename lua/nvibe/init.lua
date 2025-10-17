@@ -26,6 +26,10 @@ local config = {
   coderabbit_cmd = "coderabbit",
 }
 
+---Cached NvChad term module
+---@type table|nil
+local nvchad_term = nil
+
 ---Calculates the terminal panel width based on environment or current window
 ---@return number The calculated width in columns
 local function get_terminal_width()
@@ -51,15 +55,36 @@ end
 ---@return nil
 function M.create_terminal_split()
   -- Check if NvChad term module is available
-  local nvchad_term, err = pcall(require, "nvchad.term")
   if not nvchad_term then
     vim.notify(
-      "Nvibe Error: nvchad.term module not found!\n\n" ..
+      "Nvibe Error: nvchad.term module not available!\n\n" ..
       "Nvibe requires NvChad to function properly.\n" ..
-      "Please install NvChad: https://github.com/NvChad/NvChad\n\n" ..
-      "Error: " .. tostring(err),
+      "Please install NvChad: https://github.com/NvChad/NvChad",
       vim.log.levels.ERROR,
       { title = "Nvibe - Missing Dependency" }
+    )
+    return
+  end
+
+  -- Validate that required commands are executable
+  if vim.fn.executable(config.cursor_agent_cmd) ~= 1 then
+    vim.notify(
+      "Nvibe Error: cursor-agent command not found!\n\n" ..
+      "Command: " .. config.cursor_agent_cmd .. "\n" ..
+      "Please install cursor-agent or update the cursor_agent_cmd configuration.",
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Command Not Found" }
+    )
+    return
+  end
+
+  if vim.fn.executable(config.coderabbit_cmd) ~= 1 then
+    vim.notify(
+      "Nvibe Error: coderabbit command not found!\n\n" ..
+      "Command: " .. config.coderabbit_cmd .. "\n" ..
+      "Please install coderabbit or update the coderabbit_cmd configuration.",
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Command Not Found" }
     )
     return
   end
@@ -75,7 +100,7 @@ function M.create_terminal_split()
   
   -- Create cursor-agent terminal in top-left using NvChad method
   local success, err = pcall(function()
-    require("nvchad.term").new {
+    nvchad_term.new {
       pos = "sp",
       cmd = config.cursor_agent_cmd,
       size = 0.5  -- 50% of the left panel
@@ -94,7 +119,7 @@ function M.create_terminal_split()
   
   -- Create coderabbit terminal in bottom-left using NvChad method
   local success2, err2 = pcall(function()
-    require("nvchad.term").new {
+    nvchad_term.new {
       pos = "sp", 
       cmd = config.coderabbit_cmd,
       size = 0.5  -- 50% of the left panel
@@ -134,19 +159,22 @@ end
 ---@param opts NvibeConfig|nil Optional configuration table
 ---@return nil
 function M.setup(opts)
-  -- Check for NvChad dependency first
-  local nvchad_term, err = pcall(require, "nvchad.term")
-  if not nvchad_term then
+  -- Check for NvChad dependency first and store the module
+  local success, term_module = pcall(require, "nvchad.term")
+  if not success then
     vim.notify(
       "Nvibe Setup Error: nvchad.term module not found!\n\n" ..
       "Nvibe requires NvChad to function properly.\n" ..
       "Please install NvChad: https://github.com/NvChad/NvChad\n\n" ..
-      "Error: " .. tostring(err),
+      "Error: " .. tostring(term_module),
       vim.log.levels.ERROR,
       { title = "Nvibe - Missing Dependency" }
     )
     return
   end
+  
+  -- Store the module for reuse
+  nvchad_term = term_module
 
   if opts then
     config = vim.tbl_deep_extend("force", config, opts)

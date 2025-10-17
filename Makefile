@@ -1,6 +1,6 @@
 # Makefile for Nvibe plugin development
 
-.PHONY: test test-coverage install-deps clean help
+.PHONY: all test test-coverage install-deps clean help
 
 # Default target
 all: test
@@ -41,7 +41,7 @@ help:
 	@echo "Available targets:"
 	@echo "  install-deps  - Install test dependencies"
 	@echo "  test         - Run tests"
-	@echo "  test-coverage- Run tests with coverage"
+	@echo "  test-coverage  - Run tests with coverage"
 	@echo "  lint         - Run linter"
 	@echo "  check        - Run linter and tests"
 	@echo "  clean        - Clean up generated files"
