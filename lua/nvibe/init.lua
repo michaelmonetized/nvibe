@@ -145,14 +145,11 @@ function M.create_terminal_split()
   -- Switch back to main window (right side)
   vim.cmd("wincmd l")
 
-  -- Create bottom panel
-  M.create_bottom_panel()
-
-  -- Switch back to main window (top area)
-  vim.cmd("wincmd k")
-
   -- Exit insert mode if we're in it
   vim.cmd("stopinsert")
+  
+  -- Now create bottom panel from main editor area
+  M.create_bottom_panel()
 end
 
 ---Creates the bottom panel with a shell terminal
