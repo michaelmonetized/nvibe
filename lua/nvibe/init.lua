@@ -148,27 +148,76 @@ function M.create_terminal_split()
   -- Exit insert mode if we're in it
   vim.cmd("stopinsert")
   
-  -- Create bottom panel with shell terminal
+  -- Create bottom panel with 3-column layout
+  -- Switch to bottom panel
+  vim.cmd("wincmd j")
+  
+  -- Split 66/33 (lazygit gets more space)
+  vim.cmd("vertical resize 66%")
+  
+  -- Create lazygit terminal
   local success3, err3 = pcall(function()
     nvchad_term.new {
       pos = "sp",
-      cmd = vim.o.shell,  -- Use user's default shell
-      size = 0.2  -- 20% of screen height
+      cmd = "lazygit",
+      size = 1.0  -- Full height of bottom panel
     }
   end)
   
   if not success3 then
     vim.notify(
-      "Nvibe Error: Failed to create bottom terminal\n\n" ..
-      "Shell: " .. vim.o.shell .. "\n" ..
+      "Nvibe Error: Failed to create lazygit terminal\n\n" ..
+      "Command: lazygit\n" ..
       "Error: " .. tostring(err3),
       vim.log.levels.ERROR,
       { title = "Nvibe - Terminal Creation Failed" }
     )
   end
   
-  -- Switch back to main window (top area)
+  -- Switch back to main window
   vim.cmd("wincmd k")
+  
+  -- Kill the 1 line empty buffer
+  vim.cmd("wincmd j")
+  vim.cmd("close")
+  
+  -- Switch back to main window
+  vim.cmd("wincmd 1")
+  
+  -- Switch to bottom panel again
+  vim.cmd("wincmd j")
+  
+  -- Split 50/50 for shell terminal
+  vim.cmd("vertical resize 50%")
+  
+  -- Create shell terminal
+  local success4, err4 = pcall(function()
+    nvchad_term.new {
+      pos = "sp",
+      cmd = vim.o.shell,  -- Use user's default shell
+      size = 1.0  -- Full height of bottom panel
+    }
+  end)
+  
+  if not success4 then
+    vim.notify(
+      "Nvibe Error: Failed to create shell terminal\n\n" ..
+      "Shell: " .. vim.o.shell .. "\n" ..
+      "Error: " .. tostring(err4),
+      vim.log.levels.ERROR,
+      { title = "Nvibe - Terminal Creation Failed" }
+    )
+  end
+  
+  -- Switch back to main window
+  vim.cmd("wincmd k")
+  
+  -- Kill the 1 line empty buffer
+  vim.cmd("wincmd j")
+  vim.cmd("close")
+  
+  -- Switch back to main window
+  vim.cmd("wincmd 1")
 end
 
 ---Creates the bottom panel with a shell terminal
