@@ -58,7 +58,7 @@ Ever found yourself constantly alt-tabbing between your editor and terminal? Or 
 
 ### Installation
 
-**Option 1: Using Lazy.nvim (Recommended)**
+### Option 1: Using Lazy.nvim (Recommended)
 ```lua
 {
   'michaelmonetized/nvibe',
@@ -68,7 +68,7 @@ Ever found yourself constantly alt-tabbing between your editor and terminal? Or 
 }
 ```
 
-**Option 2: Using Packer**
+### Option 2: Using Packer
 ```lua
 use {
   'michaelmonetized/nvibe',
@@ -78,7 +78,7 @@ use {
 }
 ```
 
-**Option 3: Manual Installation**
+### Option 3: Manual Installation
 ```bash
 git clone https://github.com/michaelmonetized/nvibe.git ~/.config/nvim/lua/nvibe
 ```
@@ -186,7 +186,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [![Get Started](https://img.shields.io/badge/Get%20Started-Now-orange?style=for-the-badge&logo=github)](https://github.com/michaelmonetized/nvibe)
 [![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Vote%20Now-orange?style=for-the-badge&logo=product-hunt)](https://www.producthunt.com)
 
-**Made with ❤️ for the Neovim community**
+### Made with ❤️ for the Neovim community
 
 [GitHub](https://github.com/michaelmonetized/nvibe) • [Issues](https://github.com/michaelmonetized/nvibe/issues) • [Discussions](https://github.com/michaelmonetized/nvibe/discussions)
 
