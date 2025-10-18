@@ -46,12 +46,14 @@ end
 ---Creates the terminal split layout with cursor-agent and coderabbit
 ---
 ---This function:
----1. Creates a vertical split to the left of the current window
----2. Resizes the left panel to the calculated width
----3. Creates cursor-agent terminal in the top half
----4. Creates coderabbit terminal in the bottom half
----5. Closes any empty editor buffers
----6. Returns focus to the main editor window
+---1. Sends <leader>e to open nvimtree and trigger window balancing
+---2. Switches back to editor to reset window layout
+---3. Creates a vertical split to the left of the current window
+---4. Resizes the left panel to the calculated width
+---5. Creates cursor-agent terminal in the top half
+---6. Creates coderabbit terminal in the bottom half
+---7. Closes any empty editor buffers
+---8. Returns focus to the main editor window
 ---
 ---@return nil
 function M.create_terminal_split()
@@ -66,6 +68,41 @@ function M.create_terminal_split()
 		)
 		return
 	end
+
+	-- Try to open nvimtree and trigger window balancing
+	-- This prevents nvimtree from balancing windows later and breaking our layout
+	local success, nvimtree = pcall(require, "nvim-tree.api")
+	if success and nvimtree.tree then
+		-- Use nvimtree API directly
+		nvimtree.tree.toggle()
+		vim.notify("1", vim.log.levels.INFO, { title = "Nvibe - NvimTree Toggled" })
+	else
+		-- Try alternative nvimtree require patterns
+		local success2, nvimtree2 = pcall(require, "nvim-tree")
+		if success2 and nvimtree2.toggle then
+			nvimtree2.toggle()
+			vim.notify("2", vim.log.levels.INFO, { title = "Nvibe - NvimTree Toggled" })
+		else
+			-- Try the old nvim-tree pattern
+			local success3, nvimtree3 = pcall(require, "nvim-tree.api.tree")
+			if success3 and nvimtree3.toggle then
+				nvimtree3.toggle()
+				vim.notify("3", vim.log.levels.INFO, { title = "Nvibe - NvimTree Toggled" })
+			else
+				-- Try using the NvimTreeToggle command directly
+				local success4, _ = pcall(vim.cmd, "NvimTreeToggle")
+				if not success4 then
+					-- Fallback to keybind simulation
+					vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<leader>e", true, false, true), "n", true)
+					vim.notify("4", vim.log.levels.INFO, { title = "Nvibe - NvimTree Toggled" })
+				end
+			end
+		end
+	end
+
+	-- Switch back to the editor to reset the window layout
+	-- This ensures we start with a clean slate for our terminal layout
+	vim.cmd("wincmd h")
 
 	-- Validate that required commands are executable
 	if vim.fn.executable(config.cursor_agent_cmd) ~= 1 then
@@ -243,7 +280,7 @@ function M.create_terminal_split()
 
 	vim.cmd("wincmd h")
 	vim.cmd("vertical resize " .. width)
-	vim.cmd("wincmd k")
+	vim.cmd("wincmd l")
 	vim.cmd("stopinsert")
 end
 
