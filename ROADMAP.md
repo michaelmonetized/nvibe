@@ -4,6 +4,12 @@
 
 - 🚀 Initial release
 
+## 🚀 v0.1.1
+
+- 🔧 Fix nvimtree window balancing issue
+- 📝 Add v0.1.1 roadmap outline
+- 🎯 Implement <leader>e keybind solution for layout stability
+
 @ISSUES
  - [x] opening nvimtree balances the window sizes, breaking the layout.
  - [ ] nvimtree takes up the full height of the right side not just the right side of the editor.

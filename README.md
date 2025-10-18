@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Nvibe Banner](https://img.shields.io/badge/Neovim-Plugin-green?style=for-the-badge&logo=neovim)
-![Version](https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-0.1.1-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
 **Transform your Neovim into a powerful AI-powered coding environment with integrated terminals and intelligent assistants.**
@@ -43,13 +43,16 @@ Ever found yourself constantly alt-tabbing between your editor and terminal? Or 
 ## 🌟 Key Features
 
 ### 🤖 **AI-Powered Coding Assistants**
-- **Cursor Agent** running in the top terminal - your intelligent coding companion
-- **CodeRabbit** running in the bottom terminal - automated code review and suggestions
-- Both assistants are **always visible** and **always interactive**
+- **Cursor Agent** running in the top-left terminal - your intelligent coding companion
+- **CodeRabbit** running in the bottom-left terminal - automated code review and suggestions
+- **LazyGit** running in the bottom-right terminal - git operations made easy
+- **Shell Terminal** running in the bottom-center - your command line interface
+- All assistants are **always visible** and **always interactive**
 
 ### 🎨 **Seamless Integration**
-- **30% left panel** dedicated to your AI assistants
-- **70% main editor** for your code
+- **Left panel** with AI assistants (Cursor Agent + CodeRabbit) - full height
+- **Bottom panel** with development tools (Shell + Shell + LazyGit) - full width
+- **Main editor** takes up the top-right area - perfectly balanced workspace
 - **Automatic setup** - just launch Neovim and you're ready to code
 - **Zero configuration** - works out of the box with NvChad
 
@@ -108,10 +111,13 @@ git clone https://github.com/michaelmonetized/nvibe.git ~/.config/nvim/lua/nvibe
 ### Usage
 
 That's it! Just launch Neovim and Nvibe automatically:
-1. 🎯 Creates a left panel (30% of screen width)
-2. 🤖 Launches Cursor Agent in the top terminal
-3. 🐰 Launches CodeRabbit in the bottom terminal
-4. ✨ You're ready to code with AI assistance!
+1. 🎯 Creates a left panel with AI assistants (full height)
+2. 🤖 Launches Cursor Agent in the top-left terminal
+3. 🐰 Launches CodeRabbit in the bottom-left terminal
+4. 📊 Creates a bottom panel with development tools (full width)
+5. 💻 Launches two Shell Terminals side-by-side
+6. 🔧 Launches LazyGit in the rightmost terminal
+7. ✨ You're ready to code with AI assistance and all your tools!
 
 ---
 
@@ -128,6 +134,25 @@ E5113: Error while calling lua chunk: .../nvibe/lua/nvibe/init.lua:36: module 'n
 1. **Install NvChad** (recommended): https://github.com/NvChad/NvChad
 2. **Install nvchad.term separately** (advanced users)
 3. **Use alternative terminal plugin** (requires code modification)
+
+---
+
+## 🆕 What's New in v0.1.1
+
+### 🎯 **Enhanced Layout System**
+- **Fixed nvimtree window balancing** - No more layout breaking when opening file explorer
+- **Improved window management** - Smart window sizing and positioning
+- **Better terminal integration** - Seamless experience with NvChad
+
+### 🛠️ **New Bottom Panel Features**
+- **LazyGit Integration** - Git operations without leaving your editor
+- **Dual Shell Terminals** - Multiple command line interfaces for different tasks
+- **Optimized Space Usage** - Left panel for AI, bottom panel for tools, main area for code
+
+### 🔧 **Technical Improvements**
+- **Robust nvimtree handling** - Multiple fallback methods for opening file explorer
+- **Better error handling** - Graceful fallbacks when plugins aren't available
+- **Enhanced stability** - More reliable window management
 
 ---
 
@@ -159,14 +184,20 @@ require('nvibe').setup({
 └─────────────────┴─────────────────┘
 ```
 
-### After Nvibe
+### After Nvibe v0.1.1
 ```text
-┌─────────┬─────────────────────────┐
-│ Cursor  │                         │
-│ Agent   │     Your Code           │
-├─────────┤                         │
-│CodeRabbit│                        │
-└─────────┴─────────────────────────┘
+┌──────────┬─────────────────────────┐
+│          │                         │
+│          │     Your Code           │
+│ Cursor   │                         │
+│ Agent    │                         │
+│          │                         │
+├──────────┤                         │
+│          │                         │
+│CodeRabbit│                         │
+│          ├───────┬───────┬─────────┤
+│          │ Shell │ Shell │ LazyGit │
+└──────────┴───────┴───────┴─────────┘
 ```
 
 </div>
@@ -175,12 +206,13 @@ require('nvibe').setup({
 
 ## 🏆 Why Developers Love Nvibe
 
-- **🚀 Zero Context Switching** - AI assistants are always visible and ready
+- **🚀 Zero Context Switching** - AI assistants, git tools, and shell are always visible and ready
 - **⚡ Instant Access** - No need to remember commands or open separate windows
-- **🎯 Focused Workflow** - Keep your code in view while getting AI help
+- **🎯 Focused Workflow** - Keep your code in view while getting AI help and managing git
 - **🔧 Seamless Integration** - Works perfectly with your existing Neovim setup
 - **🤖 Always Available** - AI assistance that never sleeps or takes breaks
 - **📱 Modern Experience** - Clean, intuitive interface that just works
+- **🛠️ Complete Development Environment** - Everything you need in one place
 
 ---
 
