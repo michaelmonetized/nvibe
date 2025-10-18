@@ -218,9 +218,56 @@ If the layout doesn't appear:
 3. Look for error messages in the notification area
 4. Verify your configuration syntax is correct
 
+## Layout Management
+
+### Automatic Layout Restoration
+
+Nvibe includes sophisticated layout management that automatically restores your layout when `<leader>e` is pressed to open nvimtree. This prevents nvimtree from permanently disrupting your carefully crafted layout.
+
+#### How It Works
+1. **Layout State Saving**: Nvibe saves the dimensions of your panels when first created
+2. **Key Monitoring**: When you press `<leader>e`, Nvibe intercepts the action
+3. **Original Function**: Executes the original `<leader>e` mapping (usually nvimtree toggle)
+4. **Automatic Restoration**: After nvimtree completes, the layout is automatically restored
+5. **Minimap Integration**: Toggles minimap before nvimtree if the buffer has content
+
+#### Configuration Options
+```lua
+require('nvibe').setup({
+  watch_leader_e = true,        -- Enable <leader>e monitoring (default: true)
+  auto_restore_layout = true,   -- Automatically restore layout (default: true)
+  toggle_minimap = true,        -- Toggle minimap before nvimtree (default: true)
+})
+```
+
+### Manual Layout Restoration
+
+You can manually restore the layout at any time using the `M.restore_layout()` function:
+
+```lua
+-- In your Neovim config or via command
+require('nvibe').restore_layout()
+```
+
+This is useful when:
+- The layout gets disrupted by other plugins
+- You want to reset the layout after manual window operations
+- You're debugging layout issues
+- The automatic restoration didn't work as expected
+
+### Layout State Management
+
+Nvibe maintains internal state about your layout dimensions:
+- `left_panel_width`: Width of the left panel in columns
+- `bottom_panel_height`: Height of the bottom panel in lines
+- `initialized`: Whether the layout state has been saved
+
+This state is automatically managed, but you can access it if needed for debugging.
+
 ## Migration from v0.1.0
 
 If you're upgrading from v0.1.0, the new configuration options are backward compatible:
 - Existing `width_percent`, `cursor_agent_cmd`, and `coderabbit_cmd` options work as before
 - New bottom panel options use sensible defaults
+- New layout management options are enabled by default
 - No changes required to existing configurations

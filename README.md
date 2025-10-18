@@ -66,6 +66,13 @@ Ever found yourself constantly alt-tabbing between your editor and terminal? Or 
 - **Flexible sizing** - adjust panel width based on your screen
 - **Shell integration** - full terminal functionality with your profile
 
+### 🧠 **Smart Layout Management**
+- **Automatic Layout Restoration** - `<leader>e` automatically restores layout after nvimtree operations
+- **Minimap Integration** - Automatically toggles minimap before nvimtree when buffer has content
+- **Window Balancing Protection** - Prevents nvimtree from breaking your carefully crafted layout
+- **Manual Control** - `M.restore_layout()` function for manual layout restoration
+- **Error Resilience** - Graceful handling of missing dependencies and failed terminals
+
 ---
 
 ## 🚀 Quick Start
@@ -119,6 +126,38 @@ That's it! Just launch Neovim and Nvibe automatically:
 6. 🔧 Launches LazyGit in the rightmost terminal
 7. ✨ You're ready to code with AI assistance and all your tools!
 
+### Advanced Usage
+
+#### Manual Layout Restoration
+If your layout gets disrupted, you can manually restore it:
+```lua
+-- In your Neovim config or via command
+require('nvibe').restore_layout()
+```
+
+#### Custom Terminal Configuration
+Customize your development environment:
+```lua
+require('nvibe').setup({
+  bottom_panel_terminals = {
+    { cmd = "lazygit", name = "Git Operations" },
+    { cmd = "htop", name = "System Monitor" },
+    { cmd = "docker ps", name = "Docker Status" },
+    { cmd = vim.o.shell, name = "Development Shell" },
+  }
+})
+```
+
+#### Layout Management
+Control how Nvibe handles layout restoration:
+```lua
+require('nvibe').setup({
+  watch_leader_e = true,        -- Monitor <leader>e for layout restoration
+  auto_restore_layout = true,   -- Automatically restore layout after operations
+  toggle_minimap = true,        -- Toggle minimap before nvimtree if buffer has content
+})
+```
+
 ---
 
 ## ⚠️ Dependency Warning
@@ -134,6 +173,29 @@ E5113: Error while calling lua chunk: .../nvibe/lua/nvibe/init.lua:36: module 'n
 1. **Install NvChad** (recommended): https://github.com/NvChad/NvChad
 2. **Install nvchad.term separately** (advanced users)
 3. **Use alternative terminal plugin** (requires code modification)
+
+## 🔧 Troubleshooting
+
+### Layout Issues
+**Problem**: Layout gets disrupted after opening nvimtree
+**Solution**: Press `<leader>e` again or run `require('nvibe').restore_layout()`
+
+**Problem**: Panels appear too small or large
+**Solution**: Adjust `width_percent` and `bottom_panel_height_percent` in your config
+
+### Terminal Issues
+**Problem**: "Command not found" errors
+**Solution**: Ensure commands are installed and in your PATH, or use absolute paths
+
+**Problem**: Terminals don't start
+**Solution**: Check that nvchad.term module is available and commands are executable
+
+### Performance Issues
+**Problem**: Slow startup
+**Solution**: Disable `watch_leader_e` and `toggle_minimap` if not needed
+
+**Problem**: Layout restoration is slow
+**Solution**: Reduce the number of terminals in `bottom_panel_terminals`
 
 ---
 
@@ -196,6 +258,11 @@ require('nvibe').setup({
 ## 🎬 Demo
 
 <div align="center">
+
+### Screenshot
+![Nvibe Layout](screenshot.png)
+
+*Nvibe in action: AI assistants on the left, development tools at the bottom, your code in the main area*
 
 ### Before Nvibe
 ```text

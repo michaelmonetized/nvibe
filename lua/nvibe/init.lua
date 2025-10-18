@@ -21,16 +21,73 @@
 -- Nvibe Plugin for Neovim
 -- Creates a comprehensive coding environment with AI assistants and development tools
 --
--- This plugin automatically creates a split terminal layout on Neovim startup:
--- - Left panel: Cursor Agent (top) and CodeRabbit (bottom) - AI assistants
--- - Bottom panel: Configurable terminals (LazyGit, Shell terminals) - development tools
--- - Main editor: Takes up the remaining space for your code
+-- OVERVIEW:
+-- =========
+-- Nvibe transforms your Neovim into a powerful AI-powered coding environment by automatically
+-- creating a sophisticated split terminal layout. This eliminates the need to constantly
+-- switch between windows, providing everything you need for modern development in one place.
 --
--- Features:
--- - All panel sizes and terminal commands are configurable
--- - Automatic layout restoration when <leader>e is pressed
--- - Smart window management that prevents layout breaking
--- - Manual layout restoration via M.restore_layout()
+-- LAYOUT STRUCTURE:
+-- =================
+-- ┌──────────┬─────────────────────────┐
+-- │          │                         │
+-- │          │     Your Code           │
+-- │ Cursor   │                         │
+-- │ Agent    │                         │
+-- │          │                         │
+-- ├──────────┤                         │
+-- │          │                         │
+-- │CodeRabbit│                         │
+-- │          ├───────┬───────┬─────────┤
+-- │          │ Shell │ Shell │ LazyGit │
+-- └──────────┴───────┴───────┴─────────┘
+--
+-- - Left Panel (20% width): AI assistants (Cursor Agent + CodeRabbit)
+-- - Bottom Panel (20% height): Development tools (LazyGit + Shell terminals)
+-- - Main Editor: Takes up the remaining space for your code
+--
+-- KEY FEATURES:
+-- =============
+-- 1. CONFIGURABLE LAYOUT: All panel sizes and terminal commands are customizable
+-- 2. SMART LAYOUT MANAGEMENT: Automatic restoration when <leader>e is pressed
+-- 3. MINIMAP INTEGRATION: Auto-toggles minimap before nvimtree when buffer has content
+-- 4. WINDOW BALANCING PROTECTION: Prevents nvimtree from breaking your layout
+-- 5. MANUAL CONTROL: M.restore_layout() function for manual layout restoration
+-- 6. ERROR RESILIENCE: Graceful handling of missing dependencies and failed terminals
+-- 7. ZERO CONFIGURATION: Works out of the box with sensible defaults
+--
+-- DEPENDENCIES:
+-- =============
+-- - Neovim 0.7+ (required for Lua support)
+-- - NvChad (required for nvchad.term module)
+-- - Cursor Agent (AI coding assistant)
+-- - CodeRabbit (Code review assistant)
+-- - LazyGit (Git operations)
+--
+-- USAGE:
+-- ======
+-- Basic setup:
+--   require('nvibe').setup()
+--
+-- Advanced configuration:
+--   require('nvibe').setup({
+--     width_percent = 25,
+--     bottom_panel_height_percent = 30,
+--     watch_leader_e = true,
+--     toggle_minimap = true,
+--     bottom_panel_terminals = {
+--       { cmd = "lazygit", name = "Git" },
+--       { cmd = "htop", name = "System" },
+--       { cmd = vim.o.shell, name = "Shell" },
+--     }
+--   })
+--
+-- Manual layout restoration:
+--   require('nvibe').restore_layout()
+--
+-- AUTHOR: Michael Monetized
+-- VERSION: 0.1.1
+-- LICENSE: MIT
 
 local M = {}
 
@@ -66,7 +123,29 @@ local layout_state = {
 	original_leader_e_mapping = nil,
 }
 
----Calculates the terminal panel width based on environment or current window
+---Calculates the left terminal panel width based on configuration and environment
+---
+---This function determines the appropriate width for the left panel containing
+---the AI assistant terminals (Cursor Agent and CodeRabbit). It prioritizes
+---environment variables for consistent sizing across different terminal sessions.
+---
+---WIDTH CALCULATION:
+---==================
+---1. ENVIRONMENT CHECK: Looks for COLS environment variable first
+---2. FALLBACK CALCULATION: Uses vim.o.columns if COLS not available
+---3. PERCENTAGE APPLICATION: Applies config.width_percent to the base width
+---4. ROUNDING: Floors the result to ensure integer column count
+---
+---ENVIRONMENT VARIABLES:
+---=====================
+---- COLS: Terminal column count (preferred for consistency)
+---- Falls back to vim.o.columns if COLS not set
+---
+---CONFIGURATION:
+---==============
+---- config.width_percent: Percentage of screen width to use (default: 20)
+---- Applied to either COLS or vim.o.columns
+---
 ---@return number The calculated width in columns
 local function get_terminal_width()
 	local cols = os.getenv("COLS")
@@ -78,7 +157,29 @@ local function get_terminal_width()
 	end
 end
 
----Calculates the bottom panel height based on configuration
+---Calculates the bottom panel height based on configuration and environment
+---
+---This function determines the appropriate height for the bottom panel containing
+---development tool terminals (LazyGit, Shell terminals). It prioritizes
+---environment variables for consistent sizing across different terminal sessions.
+---
+---HEIGHT CALCULATION:
+---===================
+---1. ENVIRONMENT CHECK: Looks for LINES environment variable first
+---2. FALLBACK CALCULATION: Uses vim.o.lines if LINES not available
+---3. PERCENTAGE APPLICATION: Applies config.bottom_panel_height_percent to the base height
+---4. ROUNDING: Floors the result to ensure integer line count
+---
+---ENVIRONMENT VARIABLES:
+---=====================
+---- LINES: Terminal line count (preferred for consistency)
+---- Falls back to vim.o.lines if LINES not set
+---
+---CONFIGURATION:
+---==============
+---- config.bottom_panel_height_percent: Percentage of screen height to use (default: 20)
+---- Applied to either LINES or vim.o.lines
+---
 ---@return number The calculated height in lines
 local function get_bottom_panel_height()
 	local lines = os.getenv("LINES")
@@ -90,7 +191,24 @@ local function get_bottom_panel_height()
 	end
 end
 
----Saves the current layout state for restoration
+---Saves the current layout state for later restoration
+---
+---This function captures the current layout dimensions and stores them in the
+---layout_state table. This information is used by restore_layout() to return
+---the layout to its original configuration after nvimtree or other operations.
+---
+---SAVED STATE:
+---============
+---- left_panel_width: Width of the left panel in columns
+---- bottom_panel_height: Height of the bottom panel in lines
+---- initialized: Flag indicating layout state has been saved
+---
+---USAGE:
+---======
+---Called automatically during create_terminal_split() to capture the
+---initial layout state. Can also be called manually to update the
+---saved state after layout changes.
+---
 ---@return nil
 local function save_layout_state()
 	layout_state.left_panel_width = get_terminal_width()
@@ -98,7 +216,33 @@ local function save_layout_state()
 	layout_state.initialized = true
 end
 
----Restores the Nvibe layout after nvimtree operations
+---Restores the Nvibe layout to its saved dimensions after nvimtree operations
+---
+---This function is the core of the layout restoration system. It analyzes all
+---current windows and restores them to their saved dimensions, preventing
+---nvimtree from permanently disrupting the carefully crafted Nvibe layout.
+---
+---WINDOW ANALYSIS:
+---================
+---1. WINDOW DISCOVERY: Gets list of all current windows
+---2. DIMENSION ANALYSIS: Checks width and height of each window
+---3. CATEGORIZATION: Groups windows by their likely purpose:
+---   - Left panel: Width matches saved left_panel_width (±5 columns)
+---   - Bottom panel: Height matches saved bottom_panel_height (±5 lines)
+---   - Main editor: All other windows
+---
+---RESTORATION PROCESS:
+---====================
+---1. LEFT PANEL: Restores width of all left panel windows
+---2. BOTTOM PANEL: Restores height of all bottom panel windows
+---3. FOCUS: Returns focus to main editor window
+---
+---ERROR HANDLING:
+---==============
+---- Uninitialized state: Returns early if layout not previously saved
+---- Missing windows: Gracefully handles windows that no longer exist
+---- Focus restoration: Safely handles missing main editor window
+---
 ---@return nil
 local function restore_layout()
 	if not layout_state.initialized then
@@ -145,8 +289,38 @@ local function restore_layout()
 	end
 end
 
----Checks if minimap is available and toggles it if needed
----@return boolean Whether minimap was toggled
+---Checks if minimap is available and toggles it if the current buffer has content
+---
+---This function provides intelligent minimap management by checking if the current
+---buffer contains content before attempting to toggle minimap. This prevents
+---unnecessary minimap operations on empty buffers and ensures a clean layout.
+---
+---PROCESS FLOW:
+---=============
+---1. CONFIGURATION CHECK: Verifies toggle_minimap is enabled
+---2. BUFFER ANALYSIS: Checks if current buffer has content
+---3. MINIMAP DETECTION: Attempts to find minimap module using multiple patterns
+---4. TOGGLE EXECUTION: Toggles minimap if found and buffer has content
+---5. SUCCESS REPORTING: Returns whether minimap was successfully toggled
+---
+---BUFFER CONTENT CHECK:
+---=====================
+---- Checks if buffer has more than 1 line
+---- Checks if the single line is not empty
+---- Only proceeds if buffer contains actual content
+---
+---MINIMAP DETECTION:
+---=================
+---Attempts multiple minimap patterns in order:
+---- require("minimap") - Standard minimap module
+---- require("minimap.api") - API-based minimap module
+---- vim.cmd("MinimapToggle") - Command-based minimap
+---
+---CONFIGURATION:
+---==============
+---- config.toggle_minimap: Whether to enable minimap toggling (default: true)
+---
+---@return boolean Whether minimap was successfully toggled
 local function toggle_minimap_if_needed()
 	if not config.toggle_minimap then
 		return false
@@ -184,7 +358,37 @@ local function toggle_minimap_if_needed()
 	return false
 end
 
----Sets up monitoring for <leader>e keypress to restore layout
+---Sets up monitoring for <leader>e keypress to automatically restore layout
+---
+---This function creates a custom <leader>e mapping that preserves the original
+---functionality while adding automatic layout restoration. This ensures that
+---nvimtree operations don't permanently disrupt the Nvibe layout.
+---
+---PROCESS FLOW:
+---=============
+---1. CONFIGURATION CHECK: Verifies watch_leader_e is enabled
+---2. MAPPING PRESERVATION: Stores original <leader>e mapping if it exists
+---3. CUSTOM MAPPING: Creates new <leader>e mapping that:
+---   - Toggles minimap if needed
+---   - Executes original mapping or nvimtree toggle
+---   - Restores layout after operation completes
+---4. ERROR HANDLING: Gracefully handles missing original mappings
+---
+---MAPPING PRESERVATION:
+---=====================
+---The original <leader>e mapping is preserved and executed as part of the
+---custom mapping, ensuring compatibility with existing configurations.
+---
+---LAYOUT RESTORATION:
+---==================
+---After the nvimtree operation completes, the layout is automatically restored
+---using a deferred function to ensure the operation has finished.
+---
+---CONFIGURATION:
+---==============
+---- config.watch_leader_e: Whether to enable <leader>e monitoring (default: true)
+---- config.toggle_minimap: Whether to toggle minimap before nvimtree
+---
 ---@return nil
 local function setup_leader_e_monitoring()
 	if not config.watch_leader_e then
@@ -226,17 +430,42 @@ local function setup_leader_e_monitoring()
 	end, { desc = "Toggle nvimtree and restore Nvibe layout" })
 end
 
----Creates the terminal split layout with cursor-agent and coderabbit
+---Creates the complete Nvibe terminal split layout
 ---
----This function:
----1. Sends <leader>e to open nvimtree and trigger window balancing
----2. Switches back to editor to reset window layout
----3. Creates a vertical split to the left of the current window
----4. Resizes the left panel to the calculated width
----5. Creates cursor-agent terminal in the top half
----6. Creates coderabbit terminal in the bottom half
----7. Closes any empty editor buffers
----8. Returns focus to the main editor window
+---This is the main function that orchestrates the creation of the entire Nvibe layout.
+---It handles all the complex window management, terminal creation, and layout restoration
+---to provide a seamless coding environment.
+---
+---PROCESS FLOW:
+---=============
+---1. DEPENDENCY CHECK: Verifies nvchad.term module is available
+---2. LAYOUT STATE SAVE: Saves current layout dimensions for restoration
+---3. MINIMAP HANDLING: Toggles minimap if buffer has content and minimap is available
+---4. NVIMTREE TRIGGER: Opens nvimtree to trigger window balancing (prevents later issues)
+---5. WINDOW RESET: Switches back to editor to reset window layout
+---6. COMMAND VALIDATION: Checks that required commands (cursor-agent, coderabbit) are executable
+---7. LEFT PANEL CREATION: Creates vertical split and resizes to configured width
+---8. AI TERMINALS: Creates Cursor Agent (top) and CodeRabbit (bottom) terminals
+---9. BOTTOM PANEL: Creates configurable bottom panel with development tools
+---10. CLEANUP: Closes empty buffers and returns focus to main editor
+---11. LAYOUT MONITORING: Sets up <leader>e monitoring for automatic restoration
+---
+---ERROR HANDLING:
+---==============
+---- Missing nvchad.term: Shows error notification and returns early
+---- Missing commands: Shows error notification and returns early
+---- Terminal creation failures: Shows error notification but continues with other terminals
+---- Layout restoration: Gracefully handles missing dependencies
+---
+---CONFIGURATION:
+---==============
+---Uses the global config table for all settings:
+---- width_percent: Left panel width as percentage of screen
+---- cursor_agent_cmd: Command to run Cursor Agent
+---- coderabbit_cmd: Command to run CodeRabbit
+---- bottom_panel_terminals: Array of terminal configurations
+---- watch_leader_e: Whether to monitor <leader>e for layout restoration
+---- toggle_minimap: Whether to toggle minimap before nvimtree
 ---
 ---@return nil
 function M.create_terminal_split()
@@ -390,23 +619,89 @@ function M.create_terminal_split()
 	setup_leader_e_monitoring()
 end
 
----Manually restores the Nvibe layout
+---Manually restores the Nvibe layout to its configured dimensions
 ---
----This function can be called manually to restore the layout after
----nvimtree or other operations that might have changed window sizes.
----It's also automatically called when <leader>e is pressed if
----watch_leader_e is enabled.
+---This function provides manual control over layout restoration, allowing users
+---to reset the layout after any operations that might have disrupted it.
+---It's also automatically called when <leader>e is pressed if watch_leader_e is enabled.
+---
+---PROCESS FLOW:
+---=============
+---1. LAYOUT CHECK: Verifies layout was previously initialized
+---2. WINDOW DISCOVERY: Scans all windows to categorize them by size and position
+---3. WINDOW CATEGORIZATION:
+---   - Left panel windows: Identified by width matching saved left_panel_width
+---   - Bottom panel windows: Identified by height matching saved bottom_panel_height
+---   - Main editor window: Remaining window (largest)
+---4. DIMENSION RESTORATION:
+---   - Restores left panel windows to saved width
+---   - Restores bottom panel windows to saved height
+---5. FOCUS RESTORATION: Returns focus to main editor window
+---
+---WINDOW IDENTIFICATION:
+---=====================
+---Windows are identified by comparing their dimensions to saved layout state:
+---- Left panel: width within ±5 columns of saved left_panel_width
+---- Bottom panel: height within ±5 lines of saved bottom_panel_height
+---- Main editor: All other windows
+---
+---ERROR HANDLING:
+---==============
+---- Uninitialized layout: Returns early if layout state not saved
+---- No matching windows: Gracefully handles missing windows
+---- Focus restoration: Safely handles missing main editor window
+---
+---USAGE SCENARIOS:
+---===============
+---- After nvimtree operations that changed window sizes
+---- After manual window resizing that disrupted the layout
+---- After plugin operations that affected window dimensions
+---- For debugging layout issues
+---- As part of automated layout management
 ---
 ---@return nil
 function M.restore_layout()
 	restore_layout()
 end
 
----Creates the bottom panel with configurable terminals
+---Creates the bottom panel with configurable development tool terminals
 ---
----This function creates a bottom panel with terminals configured via the
----bottom_panel_terminals configuration option. Each terminal can have
----its own command and name for error reporting.
+---This function creates a horizontal bottom panel containing multiple terminals
+---for development tools. The terminals are configured via the bottom_panel_terminals
+---configuration option, allowing complete customization of the development environment.
+---
+---PROCESS FLOW:
+---=============
+---1. DEPENDENCY CHECK: Verifies nvchad.term module is available
+---2. HEIGHT CALCULATION: Calculates bottom panel height from configuration
+---3. TERMINAL COUNT: Determines number of terminals to create
+---4. BOTTOM SPLIT: Creates horizontal split for the bottom panel
+---5. TERMINAL CREATION: Iterates through each terminal configuration:
+---   - Creates vertical split for each terminal (except first)
+---   - Calculates equal width distribution for terminals
+---   - Creates terminal using nvchad.term.new()
+---   - Handles errors gracefully with descriptive messages
+---6. CLEANUP: Closes temporary windows and positions focus
+---
+---TERMINAL CONFIGURATION:
+---=======================
+---Each terminal in bottom_panel_terminals can have:
+---- cmd: Command to run in the terminal (required)
+---- name: Display name for error messages (optional, defaults to "terminal")
+---
+---ERROR HANDLING:
+---==============
+---- Missing nvchad.term: Shows error notification and returns early
+---- Terminal creation failures: Shows error with terminal name and command
+---- Continues creating other terminals even if one fails
+---
+---CONFIGURATION:
+---==============
+---- bottom_panel_height_percent: Height of bottom panel as percentage of screen
+---- bottom_panel_terminals: Array of terminal configurations
+---- Each terminal uses config.bottom_panel_height_percent for size
+---
+---@return nil
 function M.create_bottom_panel()
 	-- Check if nvchad.term is available
 	if not nvchad_term then
@@ -474,11 +769,55 @@ end
 
 ---Initializes the Nvibe plugin with optional configuration
 ---
----This function sets up the plugin by:
----1. Checking for required dependencies (NvChad)
----2. Merging user-provided options with default configuration
----3. Creating an autocmd that runs on VimEnter
----4. Ensuring the terminal split only runs when not already in a terminal buffer
+---This is the main entry point for the Nvibe plugin. It performs all necessary
+---setup including dependency checking, configuration merging, and autocmd creation.
+---The plugin will automatically create the layout when Neovim starts.
+---
+---PROCESS FLOW:
+---=============
+---1. DEPENDENCY CHECK: Verifies nvchad.term module is available
+---2. ERROR HANDLING: Shows detailed error if NvChad not found
+---3. MODULE STORAGE: Caches nvchad.term module for reuse
+---4. CONFIGURATION MERGE: Merges user options with defaults using deep extend
+---5. AUTOCMD CREATION: Creates VimEnter autocmd for automatic layout creation
+---6. CONDITIONAL EXECUTION: Only runs if not already in a terminal buffer
+---
+---CONFIGURATION MERGING:
+---=====================
+---User-provided options are merged with defaults using vim.tbl_deep_extend:
+---- Preserves all default values
+---- Overwrites with user-provided values
+---- Handles nested tables properly
+---- Maintains type safety
+---
+---AUTOCMD BEHAVIOR:
+---=================
+---The VimEnter autocmd ensures layout creation happens automatically:
+---- Runs on every VimEnter event
+---- Checks if current buffer is not a terminal
+---- Prevents layout creation in terminal buffers
+---- Ensures clean startup experience
+---
+---ERROR HANDLING:
+---==============
+---- Missing NvChad: Shows detailed error with installation instructions
+---- Configuration errors: Handled by vim.tbl_deep_extend
+---- Autocmd failures: Gracefully handled by Neovim
+---
+---USAGE EXAMPLES:
+---===============
+---Basic setup:
+---  require('nvibe').setup()
+---
+---With configuration:
+---  require('nvibe').setup({
+---    width_percent = 25,
+---    watch_leader_e = true,
+---    bottom_panel_terminals = {
+---      { cmd = "lazygit", name = "Git" },
+---      { cmd = "htop", name = "System" }
+---    }
+---  })
 ---
 ---@param opts NvibeConfig|nil Optional configuration table
 ---@return nil
