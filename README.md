@@ -149,6 +149,11 @@ E5113: Error while calling lua chunk: .../nvibe/lua/nvibe/init.lua:36: module 'n
 - **Dual Shell Terminals** - Multiple command line interfaces for different tasks
 - **Optimized Space Usage** - Left panel for AI, bottom panel for tools, main area for code
 
+### 🔧 **Smart Layout Management**
+- **Automatic Layout Restoration** - `<leader>e` automatically restores layout after nvimtree operations
+- **Minimap Integration** - Automatically toggles minimap before nvimtree when buffer is not empty
+- **Window Balancing Protection** - Prevents nvimtree from breaking your carefully crafted layout
+
 ### 🔧 **Technical Improvements**
 - **Robust nvimtree handling** - Multiple fallback methods for opening file explorer
 - **Better error handling** - Graceful fallbacks when plugins aren't available
@@ -177,7 +182,12 @@ require('nvibe').setup({
     { cmd = "lazygit", name = "LazyGit" },
     { cmd = vim.o.shell, name = "Shell 1" },
     { cmd = vim.o.shell, name = "Shell 2" },
-  }
+  },
+  
+  -- Layout management options
+  watch_leader_e = true,              -- Watch for <leader>e and restore layout
+  auto_restore_layout = true,         -- Automatically restore layout after operations
+  toggle_minimap = true,              -- Toggle minimap before nvimtree if buffer not empty
 })
 ```
 

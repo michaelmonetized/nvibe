@@ -72,6 +72,35 @@ require('nvibe').setup({
 })
 ```
 
+### Layout Management
+
+#### `watch_leader_e` (boolean, default: true)
+Whether to watch for `<leader>e` keypress and automatically restore the layout after nvimtree operations.
+
+```lua
+require('nvibe').setup({
+  watch_leader_e = true,  -- Automatically restore layout when <leader>e is pressed
+})
+```
+
+#### `auto_restore_layout` (boolean, default: true)
+Whether to automatically restore the layout after nvimtree operations.
+
+```lua
+require('nvibe').setup({
+  auto_restore_layout = true,  -- Automatically restore layout after operations
+})
+```
+
+#### `toggle_minimap` (boolean, default: true)
+Whether to toggle minimap before opening nvimtree if the current buffer is not empty.
+
+```lua
+require('nvibe').setup({
+  toggle_minimap = true,  -- Toggle minimap before nvimtree if buffer has content
+})
+```
+
 ### Advanced: Custom Bottom Panel Terminals
 
 #### `bottom_panel_terminals` (table, default: see below)
@@ -134,6 +163,27 @@ require('nvibe').setup({
 
 ### Automatic Layout Creation
 Nvibe automatically creates the layout when Neovim starts, but only if you're not already in a terminal buffer. This prevents the layout from being created when you're already in a terminal session.
+
+### Layout Restoration
+Nvibe includes smart layout management features:
+
+#### Automatic Restoration
+- **`<leader>e` Monitoring**: When you press `<leader>e` to open nvimtree, Nvibe automatically restores the layout after the operation completes
+- **Minimap Integration**: If minimap is available and the current buffer has content, Nvibe will toggle minimap before opening nvimtree
+- **Window Balancing Protection**: Prevents nvimtree from breaking your carefully crafted layout
+
+#### Manual Restoration
+You can manually restore the layout at any time:
+
+```lua
+-- In your Neovim config or via command
+require('nvibe').restore_layout()
+```
+
+This is useful if:
+- The layout gets disrupted by other plugins
+- You want to reset the layout after manual window operations
+- You're debugging layout issues
 
 ### Window Management
 - The left panel contains AI assistants (Cursor Agent + CodeRabbit)
