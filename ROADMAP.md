@@ -17,7 +17,7 @@
 
 @TODO
  - [x] try opening NVIMTREE and switching back to the editor before we start splitting and launching terms
- - [-] create a roadmap
+ - [x] create a roadmap
  - [x] make bottom panel commands and sizes configurable
  - [ ] try watching for <leader>e and counter-acting the window balancing it does or make <leader>[ cycle through the windows and resize them according to the config.
  - [x] test with minimap
