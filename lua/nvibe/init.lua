@@ -1,21 +1,28 @@
 ---@meta
 
 ---@class NvibeConfig
----@field width_percent number Percentage of screen width for terminal panel (default: 30)
+---@field width_percent number Percentage of screen width for terminal panel (default: 20)
 ---@field cursor_agent_cmd string Command to run cursor-agent (default: "cursor-agent")
 ---@field coderabbit_cmd string Command to run coderabbit (default: "coderabbit")
+---@field bottom_panel_height_percent number Percentage of screen height for bottom panel (default: 20)
+---@field lazygit_cmd string Command to run lazygit (default: "lazygit")
+---@field shell_cmd string Command to run shell terminals (default: vim.o.shell)
+---@field bottom_panel_terminals table Array of terminal configurations for bottom panel
 
 ---@class NvibeModule
 ---@field create_terminal_split fun(): nil Creates the terminal split layout
----@field create_bottom_panel fun(): nil Creates the bottom panel with shell
+---@field create_bottom_panel fun(): nil Creates the bottom panel with configurable terminals
 ---@field setup fun(opts?: NvibeConfig): nil Initializes the plugin with optional configuration
 
 -- Nvibe Plugin for Neovim
--- Opens a terminal pane on the left with cursor-agent and coderabbit
+-- Creates a comprehensive coding environment with AI assistants and development tools
 --
--- This plugin automatically creates a split terminal layout on Neovim startup,
--- with cursor-agent running in the top terminal and coderabbit in the bottom terminal.
--- The terminal panel takes up 30% of the screen width by default.
+-- This plugin automatically creates a split terminal layout on Neovim startup:
+-- - Left panel: Cursor Agent (top) and CodeRabbit (bottom) - AI assistants
+-- - Bottom panel: Configurable terminals (LazyGit, Shell terminals) - development tools
+-- - Main editor: Takes up the remaining space for your code
+--
+-- All panel sizes and terminal commands are configurable via the setup function.
 
 local M = {}
 
@@ -25,6 +32,14 @@ local config = {
 	width_percent = 20,
 	cursor_agent_cmd = "cursor-agent",
 	coderabbit_cmd = "coderabbit",
+	bottom_panel_height_percent = 20,
+	lazygit_cmd = "lazygit",
+	shell_cmd = vim.o.shell,
+	bottom_panel_terminals = {
+		{ cmd = "lazygit", name = "LazyGit" },
+		{ cmd = vim.o.shell, name = "Shell 1" },
+		{ cmd = vim.o.shell, name = "Shell 2" },
+	},
 }
 
 ---Cached NvChad term module
@@ -38,8 +53,20 @@ local function get_terminal_width()
 	if cols then
 		return math.floor(tonumber(cols) * (config.width_percent / 100))
 	else
-		-- Fallback to 30% of current window width
+		-- Fallback to configured percentage of current window width
 		return math.floor(vim.o.columns * (config.width_percent / 100))
+	end
+end
+
+---Calculates the bottom panel height based on configuration
+---@return number The calculated height in lines
+local function get_bottom_panel_height()
+	local lines = os.getenv("LINES")
+	if lines then
+		return math.floor(tonumber(lines) * (config.bottom_panel_height_percent / 100))
+	else
+		-- Fallback to configured percentage of current window height
+		return math.floor(vim.o.lines * (config.bottom_panel_height_percent / 100))
 	end
 end
 
@@ -193,95 +220,83 @@ function M.create_terminal_split()
 	-- Switch back to main window (right side)
 	vim.cmd("wincmd l")
 
-	vim.cmd("belowright split")
-	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
-
-	vim.cmd("belowright vnew")
-	vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.33))
-
-	-- -- Create lazygit terminal full width of the bottom panel.
-	local success3, err3 = pcall(function()
-		nvchad_term.new({
-			pos = "sp",
-			cmd = "lazygit",
-			size = 0.2, -- Full height of bottom panel
-		})
-	end)
-
-	if not success3 then
-		vim.notify(
-			"Nvibe Error: Failed to create lazygit terminal\n\n" .. "Command: lazygit\n" .. "Error: " .. tostring(err3),
-			vim.log.levels.ERROR,
-			{ title = "Nvibe - Terminal Creation Failed" }
-		)
-	end
-
-	-- Switch to left side of bottom panel
-	-- vim.cmd("wincmd k")
-	vim.cmd("wincmd k")
-	vim.cmd("close")
-	vim.cmd("wincmd h")
-	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
-	--
-	vim.cmd("belowright vnew")
-	-- vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.5))
-	--
-	local success4, err4 = pcall(function()
-		nvchad_term.new({
-			pos = "sp",
-			cmd = vim.o.shell, -- Use user's default shell
-			size = 0.2, -- Full height of bottom panel
-		})
-	end)
-
-	if not success4 then
-		vim.notify(
-			"Nvibe Error: Failed to create shell terminal\n\n"
-				.. "Shell: "
-				.. vim.o.shell
-				.. "\n"
-				.. "Error: "
-				.. tostring(err4),
-			vim.log.levels.ERROR,
-			{ title = "Nvibe - Terminal Creation Failed" }
-		)
-	end
-
-	vim.cmd("wincmd k")
-	vim.cmd("close")
-	vim.cmd("wincmd h")
-	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
-
-	local success5, err5 = pcall(function()
-		nvchad_term.new({
-			pos = "sp",
-			cmd = vim.o.shell, -- Use user's default shell
-			size = 0.2, -- Full height of bottom panel
-		})
-	end)
-
-	if not success5 then
-		vim.notify(
-			"Nvibe Error: Failed to create shell terminal\n\n"
-				.. "Shell: "
-				.. vim.o.shell
-				.. "\n"
-				.. "Error: "
-				.. tostring(err5),
-			vim.log.levels.ERROR,
-			{ title = "Nvibe - Terminal Creation Failed" }
-		)
-	end
-
-	vim.cmd("wincmd k")
-	vim.cmd("close")
-	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
-	vim.cmd("wincmd k")
+	-- Create the bottom panel with configurable terminals
+	M.create_bottom_panel()
 
 	vim.cmd("wincmd h")
 	vim.cmd("vertical resize " .. width)
 	vim.cmd("wincmd l")
 	vim.cmd("stopinsert")
+end
+
+---Creates the bottom panel with configurable terminals
+---
+---This function creates a bottom panel with terminals configured via the
+---bottom_panel_terminals configuration option. Each terminal can have
+---its own command and name for error reporting.
+function M.create_bottom_panel()
+	-- Check if nvchad.term is available
+	if not nvchad_term then
+		vim.notify(
+			"Nvibe Error: nvchad.term module not found\n\n"
+				.. "Please ensure NvChad is installed and loaded.\n"
+				.. "Nvibe requires the nvchad.term module to create terminals.",
+			vim.log.levels.ERROR,
+			{ title = "Nvibe - Missing Dependency" }
+		)
+		return
+	end
+
+	local bottom_height = get_bottom_panel_height()
+	local terminal_count = #config.bottom_panel_terminals
+
+	-- Create bottom split
+	vim.cmd("belowright split")
+	vim.cmd("resize " .. bottom_height)
+
+	-- Create terminals in the bottom panel
+	for i, terminal_config in ipairs(config.bottom_panel_terminals) do
+		-- Create vertical split for each terminal (except the first one)
+		if i > 1 then
+			vim.cmd("belowright vnew")
+			-- Calculate width for each terminal (equal distribution)
+			local terminal_width = math.floor(vim.o.columns / terminal_count)
+			vim.cmd("vertical resize " .. terminal_width)
+		end
+
+		-- Create the terminal
+		local success, err = pcall(function()
+			nvchad_term.new({
+				pos = "sp",
+				cmd = terminal_config.cmd,
+				size = config.bottom_panel_height_percent / 100, -- Convert percentage to decimal
+			})
+		end)
+
+		if not success then
+			vim.notify(
+				"Nvibe Error: Failed to create " .. (terminal_config.name or "terminal") .. "\n\n"
+					.. "Command: " .. terminal_config.cmd .. "\n"
+					.. "Error: " .. tostring(err),
+				vim.log.levels.ERROR,
+				{ title = "Nvibe - Terminal Creation Failed" }
+			)
+		end
+
+		-- Move to next terminal position
+		if i < terminal_count then
+			vim.cmd("wincmd k")
+			vim.cmd("close")
+			vim.cmd("wincmd h")
+			vim.cmd("resize " .. bottom_height)
+		end
+	end
+
+	-- Final cleanup and positioning
+	vim.cmd("wincmd k")
+	vim.cmd("close")
+	vim.cmd("resize " .. bottom_height)
+	vim.cmd("wincmd k")
 end
 
 ---Initializes the Nvibe plugin with optional configuration

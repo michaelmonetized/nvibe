@@ -162,9 +162,22 @@ Customize Nvibe to fit your workflow:
 
 ```lua
 require('nvibe').setup({
-  width_percent = 30,                    -- Panel width (default: 30%)
+  -- Left panel configuration
+  width_percent = 20,                    -- Left panel width (default: 20%)
   cursor_agent_cmd = "cursor-agent",     -- Your AI coding assistant
-  coderabbit_cmd = "coderabbit"          -- Your code review assistant
+  coderabbit_cmd = "coderabbit",         -- Your code review assistant
+  
+  -- Bottom panel configuration
+  bottom_panel_height_percent = 20,      -- Bottom panel height (default: 20%)
+  lazygit_cmd = "lazygit",               -- Git operations terminal
+  shell_cmd = vim.o.shell,               -- Shell terminal command
+  
+  -- Advanced: Customize bottom panel terminals
+  bottom_panel_terminals = {
+    { cmd = "lazygit", name = "LazyGit" },
+    { cmd = vim.o.shell, name = "Shell 1" },
+    { cmd = vim.o.shell, name = "Shell 2" },
+  }
 })
 ```
 
