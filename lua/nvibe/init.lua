@@ -156,14 +156,17 @@ function M.create_terminal_split()
 	vim.cmd("wincmd l")
 
 	vim.cmd("belowright split")
-
 	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
-	-- Create lazygit terminal full width of the bottom panel.
+
+	vim.cmd("belowright vnew")
+	vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.33))
+
+	-- -- Create lazygit terminal full width of the bottom panel.
 	local success3, err3 = pcall(function()
 		nvchad_term.new({
 			pos = "sp",
 			cmd = "lazygit",
-			size = 1.0, -- Full height of bottom panel
+			size = 0.2, -- Full height of bottom panel
 		})
 	end)
 
@@ -175,14 +178,21 @@ function M.create_terminal_split()
 		)
 	end
 
-	-- Switch to right side of bottom panel
-	vim.cmd("wincmd l")
-
+	-- Switch to left side of bottom panel
+	-- vim.cmd("wincmd k")
+	vim.cmd("wincmd k")
+	vim.cmd("close")
+	vim.cmd("wincmd h")
+	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
+	--
+	vim.cmd("belowright vnew")
+	-- vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.5))
+	--
 	local success4, err4 = pcall(function()
 		nvchad_term.new({
 			pos = "sp",
 			cmd = vim.o.shell, -- Use user's default shell
-			size = 1.0, -- Full height of bottom panel
+			size = 0.2, -- Full height of bottom panel
 		})
 	end)
 
@@ -199,15 +209,16 @@ function M.create_terminal_split()
 		)
 	end
 
-	vim.cmd("leftbelow vnew")
-	vim.cmd("resize " .. math.floor(vim.o.columns * 0.33))
+	vim.cmd("wincmd k")
+	vim.cmd("close")
+	vim.cmd("wincmd h")
+	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
 
-	-- Create shell terminal in right side of bottom panel
 	local success5, err5 = pcall(function()
 		nvchad_term.new({
 			pos = "sp",
 			cmd = vim.o.shell, -- Use user's default shell
-			size = 1.0, -- Full height of bottom panel
+			size = 0.2, -- Full height of bottom panel
 		})
 	end)
 
@@ -224,66 +235,11 @@ function M.create_terminal_split()
 		)
 	end
 
-	-- Switch back to main window (top area)
 	vim.cmd("wincmd k")
-	vim.cmd("wincmd k")
-	vim.cmd("stopinsert")
-end
-
----Creates the bottom panel with a shell terminal
----
----This function:
----1. Creates a horizontal split at the bottom
----2. Resizes the bottom panel to 20% of screen height
----3. Launches a shell terminal (same as <leader>h)
----4. Returns focus to the main editor window
----
----@return nil
-function M.create_bottom_panel()
-	-- Check if NvChad term module is available
-	if not nvchad_term then
-		vim.notify(
-			"Nvibe Error: nvchad.term module not available!\n\n"
-				.. "Nvibe requires NvChad to function properly.\n"
-				.. "Please install NvChad: https://github.com/NvChad/NvChad",
-			vim.log.levels.ERROR,
-			{ title = "Nvibe - Missing Dependency" }
-		)
-		return
-	end
-
-	-- Create horizontal split at the bottom
-	vim.cmd("belowright split")
-
-	-- Set the height to 20% of screen
+	vim.cmd("close")
 	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
-
-	-- Create shell terminal using NvChad method
-	local success, err = pcall(function()
-		nvchad_term.new({
-			pos = "sp",
-			cmd = vim.o.shell, -- Use user's default shell
-			size = 1.0, -- Full width of bottom panel
-		})
-	end)
-
-	if not success then
-		vim.notify(
-			"Nvibe Error: Failed to create bottom terminal\n\n"
-				.. "Shell: "
-				.. vim.o.shell
-				.. "\n"
-				.. "Error: "
-				.. tostring(err),
-			vim.log.levels.ERROR,
-			{ title = "Nvibe - Terminal Creation Failed" }
-		)
-	end
-
-	-- Switch back to main window (top area)
 	vim.cmd("wincmd k")
 
-	-- Exit insert mode if we're in it
 	vim.cmd("stopinsert")
 end
 
