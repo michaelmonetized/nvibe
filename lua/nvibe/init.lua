@@ -22,7 +22,7 @@ local M = {}
 ---Default configuration for the Nvibe plugin
 ---@type NvibeConfig
 local config = {
-	width_percent = 30,
+	width_percent = 20,
 	cursor_agent_cmd = "cursor-agent",
 	coderabbit_cmd = "coderabbit",
 }
@@ -206,7 +206,7 @@ function M.create_terminal_split()
 
 	-- Switch back to main window (top area)
 	vim.cmd("wincmd k")
-	vim.cmd("close")
+	--vim.cmd("close")
 	vim.cmd("wincmd 1")
 	vim.cmd("wincmd j")
 	vim.cmd("bottomright vnew")
@@ -235,7 +235,7 @@ function M.create_terminal_split()
 
 	-- Switch back to main window (top area)
 	vim.cmd("wincmd k")
-	vim.cmd("close")
+	--vim.cmd("close")
 	vim.cmd("wincmd 1")
 	vim.cmd("stopinsert")
 end
@@ -343,4 +343,3 @@ function M.setup(opts)
 end
 
 return M
-
