@@ -155,9 +155,6 @@ function M.create_terminal_split()
 	-- Switch back to main window (right side)
 	vim.cmd("wincmd l")
 
-	-- Exit insert mode if we're in it
-	vim.cmd("stopinsert")
-
 	vim.cmd("belowright split")
 
 	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
@@ -178,12 +175,9 @@ function M.create_terminal_split()
 		)
 	end
 
-	vim.cmd("stopinsert")
-	-- Switch to left side of bottom panel
-	vim.cmd("wincmd 1")
-	vim.cmd("wincmd j")
+	-- Switch to right side of bottom panel
+	vim.cmd("wincmd l")
 
-	-- Create shell terminal in right side of bottom panel
 	local success4, err4 = pcall(function()
 		nvchad_term.new({
 			pos = "sp",
@@ -205,10 +199,8 @@ function M.create_terminal_split()
 		)
 	end
 
-	vim.cmd("stopinsert")
-	-- Switch to left side of bottom panel
-	vim.cmd("wincmd 1")
-	vim.cmd("wincmd j")
+	vim.cmd("leftbelow vnew")
+	vim.cmd("resize " .. math.floor(vim.o.columns * 0.33))
 
 	-- Create shell terminal in right side of bottom panel
 	local success5, err5 = pcall(function()
@@ -233,11 +225,9 @@ function M.create_terminal_split()
 	end
 
 	-- Switch back to main window (top area)
-	-- vim.cmd("wincmd k")
-	-- --vim.cmd("close")
+	vim.cmd("wincmd k")
+	vim.cmd("wincmd k")
 	vim.cmd("stopinsert")
-	vim.cmd("wincmd 1")
-	-- vim.cmd("stopinsert")
 end
 
 ---Creates the bottom panel with a shell terminal
