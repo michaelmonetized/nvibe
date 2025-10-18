@@ -151,6 +151,7 @@ function M.create_terminal_split()
 	vim.cmd("wincmd k")
 	vim.cmd("wincmd k")
 	vim.cmd("close")
+	vim.cmd("vertical resize " .. width)
 
 	-- Switch back to main window (right side)
 	vim.cmd("wincmd l")
@@ -240,6 +241,9 @@ function M.create_terminal_split()
 	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
 	vim.cmd("wincmd k")
 
+	vim.cmd("wincmd h")
+	vim.cmd("vertical resize " .. width)
+	vim.cmd("wincmd k")
 	vim.cmd("stopinsert")
 end
 
