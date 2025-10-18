@@ -158,9 +158,9 @@ function M.create_terminal_split()
 	-- Exit insert mode if we're in it
 	vim.cmd("stopinsert")
 
-	vim.cmd("bottomright vnew")
-	vim.cmd("wincmd l")
-	vim.cmd("wincmd j")
+	vim.cmd("belowright split")
+
+	vim.cmd("resize " .. math.floor(vim.o.lines * 0.2))
 	-- Create lazygit terminal full width of the bottom panel.
 	local success3, err3 = pcall(function()
 		nvchad_term.new({
@@ -178,8 +178,10 @@ function M.create_terminal_split()
 		)
 	end
 
+	vim.cmd("stopinsert")
 	-- Switch to left side of bottom panel
-	vim.cmd("wincmd h")
+	vim.cmd("wincmd 1")
+	vim.cmd("wincmd j")
 
 	-- Create shell terminal in right side of bottom panel
 	local success4, err4 = pcall(function()
@@ -203,8 +205,10 @@ function M.create_terminal_split()
 		)
 	end
 
+	vim.cmd("stopinsert")
 	-- Switch to left side of bottom panel
-	vim.cmd("wincmd h")
+	vim.cmd("wincmd 1")
+	vim.cmd("wincmd j")
 
 	-- Create shell terminal in right side of bottom panel
 	local success5, err5 = pcall(function()
@@ -231,6 +235,7 @@ function M.create_terminal_split()
 	-- Switch back to main window (top area)
 	-- vim.cmd("wincmd k")
 	-- --vim.cmd("close")
+	vim.cmd("stopinsert")
 	vim.cmd("wincmd 1")
 	-- vim.cmd("stopinsert")
 end
