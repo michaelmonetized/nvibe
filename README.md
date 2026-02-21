@@ -245,6 +245,42 @@ make check
 - ✅ Autocmd creation and handling
 - ✅ Error conditions and edge cases
 
+## 🌲 NvimTree Integration
+
+Nvibe automatically handles NvimTree layout conflicts so your panels stay intact when you toggle the file explorer.
+
+### What's fixed (v0.1.2+)
+- **Issue #4** — Opening NvimTree no longer rebalances and breaks the nvibe layout
+- **Issue #5** — NvimTree is constrained to the editor-row height; it won't span the full Neovim height over your terminal panes
+
+### Recommended NvimTree config (in your NvChad `plugins.lua`)
+
+For best results with nvibe's layout, configure NvimTree to not auto-resize on open:
+
+```lua
+{
+  "nvim-tree/nvim-tree.lua",
+  opts = {
+    view = {
+      width = 30,
+      side = "left",
+      -- Prevent NvimTree from resizing other windows when it opens
+      preserve_window_proportions = true,
+    },
+    -- Keep focus in the editor after NvimTree opens
+    hijack_cursor = false,
+    update_focused_file = {
+      enable = true,
+      update_root = false, -- don't re-root when switching files
+    },
+  },
+}
+```
+
+> **Note:** `preserve_window_proportions = true` is the key setting. Without it, NvimTree triggers a full window equalization that resets the nvibe panel widths.
+
+---
+
 ## 🤝 Contributing
 
 We love contributions! Here's how you can help:
