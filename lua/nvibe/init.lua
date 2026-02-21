@@ -31,6 +31,14 @@ local config = {
 ---@type table|nil
 local nvchad_term = nil
 
+---Main editor window ID (tracked after layout creation)
+---@type number|nil
+local main_editor_win = nil
+
+---Cached editor-row height (used to constrain NvimTree, issues #4 #5)
+---@type number|nil
+local editor_height_cache = nil
+
 ---Calculates the terminal panel width based on environment or current window
 ---@return number The calculated width in columns
 local function get_terminal_width()
@@ -243,6 +251,24 @@ function M.create_terminal_split()
 	vim.cmd("stopinsert")
 end
 
+---Restores nvibe terminal panel widths after external plugins (e.g. NvimTree) disrupt layout
+---@return nil
+function M.rebalance_panels()
+	local width = get_terminal_width()
+	-- Resize the left terminal panel (cursor-agent / coderabbit windows)
+	-- We do this by finding windows whose buftype is "terminal" on the left column
+	for _, win in ipairs(vim.api.nvim_list_wins()) do
+		if vim.api.nvim_win_is_valid(win) then
+			local pos = vim.api.nvim_win_get_position(win)
+			local bt = vim.bo[vim.api.nvim_win_get_buf(win)].buftype
+			-- Left-column terminal windows (col 0) belong to nvibe's side panel
+			if pos[2] == 0 and bt == "terminal" then
+				vim.api.nvim_win_set_width(win, width)
+			end
+		end
+	end
+end
+
 ---Initializes the Nvibe plugin with optional configuration
 ---
 ---This function sets up the plugin by:
@@ -283,6 +309,42 @@ function M.setup(opts)
 			-- Only run if we're not in a terminal buffer already
 			if vim.bo.buftype ~= "terminal" then
 				M.create_terminal_split()
+				-- Capture editor window + height after layout is built (for NvimTree fix)
+				vim.defer_fn(function()
+					main_editor_win = vim.api.nvim_get_current_win()
+					editor_height_cache = vim.api.nvim_win_get_height(main_editor_win)
+				end, 300)
+			end
+		end,
+	})
+
+	-- NvimTree integration: prevent full-height takeover and layout breakage
+	-- Fixes issues #4 (window rebalancing breaks layout) and #5 (full height)
+	local nvimtree_group = vim.api.nvim_create_augroup("NvibeNvimTree", { clear = true })
+
+	-- When NvimTree opens: constrain its height to the editor row only
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = "NvimTree",
+		group = nvimtree_group,
+		callback = function()
+			vim.defer_fn(function()
+				local tree_win = vim.api.nvim_get_current_win()
+				-- Use cached editor height (set when layout was created)
+				if editor_height_cache and vim.api.nvim_win_is_valid(tree_win) then
+					vim.api.nvim_win_set_height(tree_win, editor_height_cache)
+				end
+				-- Restore nvibe panel widths after NvimTree opens
+				M.rebalance_panels()
+			end, 50)
+		end,
+	})
+
+	-- When NvimTree closes: restore nvibe panel widths
+	vim.api.nvim_create_autocmd({ "BufWinLeave", "BufUnload" }, {
+		group = nvimtree_group,
+		callback = function()
+			if vim.bo[vim.api.nvim_get_current_buf()].filetype == "NvimTree" then
+				vim.defer_fn(M.rebalance_panels, 50)
 			end
 		end,
 	})
