@@ -6,20 +6,26 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Lua
+        uses: hishamhm/gh-action-lua@v0.07
         with:
-          bun-version: "1.1.38"
+          luaVersion: "5.1"
+      
+      - name: Setup LuaRocks
+        uses: hishamhm/gh-action-luarocks@v0.07
 
-      - name: Install
-        run: bun install --frozen-lockfile
+      - name: Install Dependencies
+        run: make install-deps
 
-      - name: Build
-        run: bun run build
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test
