@@ -3,10 +3,12 @@
 <div align="center">
 
 ![Nvibe Banner](https://img.shields.io/badge/Neovim-Plugin-green?style=for-the-badge&logo=neovim)
-![Version](https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge)
+![GitHub release](https://img.shields.io/github/v/release/michaelmonetized/nvibe?include_prereleases&sort=semver&style=for-the-badge&label=release)
 ![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)
 
-**Transform your Neovim into a powerful AI-powered coding environment with integrated terminals and intelligent assistants.**
+**Neovim plugin** that opens Cursor Agent + CodeRabbit terminals beside your editor (NvChad required).
+
+> Status: **v0.1.0** source is public; install from this GitHub repo (not an npm package).
 
 <div align="center">
 
@@ -18,7 +20,7 @@ Install NvChad first, then install Nvibe.
 
 </div>
 
-[![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Orange?style=for-the-badge&logo=product-hunt)](https://www.producthunt.com)
+<!-- Product Hunt launch not shipped — badge removed for honesty -->
 [![GitHub Stars](https://img.shields.io/github/stars/michaelmonetized/nvibe?style=for-the-badge&logo=github)](https://github.com/michaelmonetized/nvibe)
 [![Neovim](https://img.shields.io/badge/Neovim-0.7+-57A143?style=for-the-badge&logo=neovim)](https://neovim.io)
 [![NvChad](https://img.shields.io/badge/Requires-NvChad-red?style=for-the-badge&logo=github)](https://github.com/NvChad/NvChad)
