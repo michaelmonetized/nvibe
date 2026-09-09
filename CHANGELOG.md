@@ -2,7 +2,7 @@
 
 All notable changes to the Nvibe plugin will be documented in this file.
 
-## [0.1.0] - 2025-01-17
+## [0.1.0] - 2025-10-17
 
 ### Added
 - Initial release of Nvibe plugin for Neovim

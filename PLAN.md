@@ -8,21 +8,16 @@ Nvibe is a Neovim plugin that transforms the editor into an AI-powered coding en
 
 ## Current State
 
-- Version 0.1.1 released
+- Version 0.1.x released (see CHANGELOG; git history starts **2025-10-17**)
 - Core layout system working (left panel for AI, bottom panel for tools)
 - NvChad terminal integration via `nvchad.term`
 - Cursor Agent, CodeRabbit, LazyGit, and shell terminals supported
 - Smart layout restoration with `<leader>e` keybinding
 - Minimap integration
-- Comprehensive test suite with 100% function coverage
-- Makefile for testing and linting
+- Test suite + Makefile
+- **LICENSE:** MIT file present at repo root
 
-## Phase 1: Stability & Compatibility (Weeks 1-2)
-
-### Goals
-- Reduce NvChad hard dependency
-- Improve error handling
-- Cross-platform testing
+## Phase 1: Stability & Compatibility (open)
 
 ### Deliverables
 - [ ] Optional NvChad dependency (fallback to toggleterm)
@@ -32,12 +27,7 @@ Nvibe is a Neovim plugin that transforms the editor into an AI-powered coding en
 - [ ] Configuration validation on setup
 - [ ] Documentation for non-NvChad users
 
-## Phase 2: Enhanced Features (Weeks 3-5)
-
-### Goals
-- More AI tool integrations
-- Layout persistence
-- Session management
+## Phase 2: Enhanced Features (open)
 
 ### Deliverables
 - [ ] GitHub Copilot Chat integration option
@@ -48,12 +38,7 @@ Nvibe is a Neovim plugin that transforms the editor into an AI-powered coding en
 - [ ] Custom keybinding configuration
 - [ ] Per-project configuration support
 
-## Phase 3: Polish & Community (Weeks 6-8)
-
-### Goals
-- Performance optimization
-- Community contributions
-- Plugin ecosystem
+## Phase 3: Polish & Community (open)
 
 ### Deliverables
 - [ ] Lazy loading for faster startup
@@ -62,7 +47,7 @@ Nvibe is a Neovim plugin that transforms the editor into an AI-powered coding en
 - [ ] Plugin API for extensions
 - [ ] Community layout preset sharing
 - [ ] Video tutorials and demos
-- [ ] Product Hunt launch preparation
+- [ ] ~~Product Hunt launch preparation~~ **Deferred** — README badges currently point at producthunt.com root, not a real launch page. Do not treat PH launch as an active milestone.
 
 ## Success Metrics
 
@@ -72,12 +57,6 @@ Nvibe is a Neovim plugin that transforms the editor into an AI-powered coding en
 | Plugin manager installs | 1000+ |
 | Issues resolved | < 5 open |
 | Startup time impact | < 50ms |
-| Test coverage | 100% maintained |
+| Test coverage | maintain high coverage |
 
-## Timeline Summary
-
-| Phase | Duration | Focus |
-|-------|----------|-------|
-| Phase 1 | Weeks 1-2 | Compatibility, error handling |
-| Phase 2 | Weeks 3-5 | AI integrations, persistence |
-| Phase 3 | Weeks 6-8 | Performance, community, launch |
+*PLAN parity sync: 2026-09-08 — deferred fictitious Product Hunt launch; noted LICENSE + git history date.*
